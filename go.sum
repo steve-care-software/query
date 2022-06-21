@@ -1,0 +1,4 @@
+github.com/steve-care-software/selector v0.0.0-20220621004418-08ef440f34fe h1:BACLwj2EoEOyHRUNUc803MM8cNGWjNyoHn6Q+BqUfAE=
+github.com/steve-care-software/selector v0.0.0-20220621004418-08ef440f34fe/go.mod h1:UNCcr33j76a4TJxzaVSjwnYCddhLJ+pgGt3qBmEkHP8=
+github.com/steve-care-software/validator v0.0.0-20220619215535-5fc60dc23003 h1:82+CcDkkoTPyGL9TmuH8v2FNSHYpX1cSoD/+gQ2kQao=
+github.com/steve-care-software/validator v0.0.0-20220619215535-5fc60dc23003/go.mod h1:WrFRdwZ4hNStJAMzEYlINlZ4NuMr2dbYcyk9RrMfvyo=
