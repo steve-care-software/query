@@ -1,9 +1,8 @@
 package applications
 
 import (
-	"github.com/steve-care-software/query/applications/lists"
-	"github.com/steve-care-software/query/applications/retrieves"
-	"github.com/steve-care-software/query/applications/searches"
+	"github.com/steve-care-software/query/applications/compilers"
+	"github.com/steve-care-software/query/applications/executions"
 )
 
 // Builder represents an application builder
@@ -15,7 +14,6 @@ type Builder interface {
 
 // Application represents an application
 type Application interface {
-	Retrieve() retrieves.Application
-	Search() searches.Application
-	List() lists.Application
+	Compiler() compilers.Application
+	Execution() executions.Application
 }
