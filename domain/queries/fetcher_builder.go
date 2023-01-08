@@ -1,16 +1,16 @@
-package selectors
+package queries
 
 import "errors"
 
 type fetcherBuilder struct {
 	recursive string
-	selector  Selector
+	query  Query
 }
 
 func createFetcherBuilder() FetcherBuilder {
 	out := fetcherBuilder{
 		recursive: "",
-		selector:  nil,
+		query:  nil,
 	}
 
 	return &out
@@ -21,15 +21,15 @@ func (app *fetcherBuilder) Create() FetcherBuilder {
 	return createFetcherBuilder()
 }
 
-// WithRecursive adds a recursive selector's token name to the builder
+// WithRecursive adds a recursive query's token name to the builder
 func (app *fetcherBuilder) WithRecursive(recursive string) FetcherBuilder {
 	app.recursive = recursive
 	return app
 }
 
-// WithSelector adds a selector to the builder
-func (app *fetcherBuilder) WithSelector(selector Selector) FetcherBuilder {
-	app.selector = selector
+// WithQuery adds a query to the builder
+func (app *fetcherBuilder) WithQuery(query Query) FetcherBuilder {
+	app.query = query
 	return app
 }
 
@@ -39,8 +39,8 @@ func (app *fetcherBuilder) Now() (Fetcher, error) {
 		return createFetcherWithRecursive(app.recursive), nil
 	}
 
-	if app.selector != nil {
-		return createFetcherWithSelector(app.selector), nil
+	if app.query != nil {
+		return createFetcherWithQuery(app.query), nil
 	}
 
 	return nil, errors.New("the Fetcher is invalid")

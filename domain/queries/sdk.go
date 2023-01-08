@@ -1,4 +1,4 @@
-package selectors
+package queries
 
 import "github.com/steve-care-software/ast/domain/trees"
 
@@ -8,20 +8,20 @@ type MultiContentFn func(contents []trees.Content) ([]interface{}, error)
 // SingleContentFn represents the single content func
 type SingleContentFn func(content trees.Content) ([]interface{}, error)
 
-// MultiSelectorFn represents the multi selector func
-type MultiSelectorFn func(instances []interface{}) (interface{}, bool, error)
+// MultiQueryFn represents the multi query func
+type MultiQueryFn func(instances []interface{}) (interface{}, bool, error)
 
-// SingleSelectorFn represents the single selector func
-type SingleSelectorFn func(instance interface{}) (interface{}, bool, error)
+// SingleQueryFn represents the single query func
+type SingleQueryFn func(instance interface{}) (interface{}, bool, error)
 
 // NewBuilder creates a new builder instance
 func NewBuilder() Builder {
 	return createBuilder()
 }
 
-// NewSelectorFnBuilder creates a new selectorFn builder
-func NewSelectorFnBuilder() SelectorFnBuilder {
-	return createSelectorFnBuilder()
+// NewQueryFnBuilder creates a new queryFn builder
+func NewQueryFnBuilder() QueryFnBuilder {
+	return createQueryFnBuilder()
 }
 
 // NewTokenBuilder creates a new token builder
@@ -54,36 +54,36 @@ func NewContentFnBuilder() ContentFnBuilder {
 	return createContentFnBuilder()
 }
 
-// Builder represents a selector builder
+// Builder represents a query builder
 type Builder interface {
 	Create() Builder
 	WithToken(token Token) Builder
 	WithInside(inside Inside) Builder
-	WithFn(fn SelectorFn) Builder
-	Now() (Selector, error)
+	WithFn(fn QueryFn) Builder
+	Now() (Query, error)
 }
 
-// Selector represents a selector
-type Selector interface {
+// Query represents a query
+type Query interface {
 	Token() Token
 	Inside() Inside
-	Fn() SelectorFn
+	Fn() QueryFn
 }
 
-// SelectorFnBuilder represents the selector func builder
-type SelectorFnBuilder interface {
-	Create() SelectorFnBuilder
-	WithSingle(single SingleSelectorFn) SelectorFnBuilder
-	WithMulti(multi MultiSelectorFn) SelectorFnBuilder
-	Now() (SelectorFn, error)
+// QueryFnBuilder represents the query func builder
+type QueryFnBuilder interface {
+	Create() QueryFnBuilder
+	WithSingle(single SingleQueryFn) QueryFnBuilder
+	WithMulti(multi MultiQueryFn) QueryFnBuilder
+	Now() (QueryFn, error)
 }
 
-// SelectorFn represents the selector fn
-type SelectorFn interface {
+// QueryFn represents the query fn
+type QueryFn interface {
 	IsSingle() bool
-	Single() SingleSelectorFn
+	Single() SingleQueryFn
 	IsMulti() bool
-	Multi() MultiSelectorFn
+	Multi() MultiQueryFn
 }
 
 // TokenBuilder represents a token builder
@@ -151,7 +151,7 @@ type Fetchers interface {
 type FetcherBuilder interface {
 	Create() FetcherBuilder
 	WithRecursive(recursive string) FetcherBuilder
-	WithSelector(selector Selector) FetcherBuilder
+	WithQuery(query Query) FetcherBuilder
 	Now() (Fetcher, error)
 }
 
@@ -159,8 +159,8 @@ type FetcherBuilder interface {
 type Fetcher interface {
 	IsRecursive() bool
 	Recursive() string
-	IsSelector() bool
-	Selector() Selector
+	IsQuery() bool
+	Query() Query
 }
 
 // ContentFnBuilder represents the content func builder

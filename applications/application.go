@@ -1,4 +1,4 @@
-package selectors
+package queries
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/steve-care-software/ast/domain/grammars"
 	"github.com/steve-care-software/ast/domain/trees"
-	"github.com/steve-care-software/query/domain/selectors"
+	"github.com/steve-care-software/query/domain/queries"
 )
 
 type application struct {
@@ -17,14 +17,14 @@ func createApplication() Application {
 	return &out
 }
 
-// Matches returns true if the selector matches the grammar, false otherwise
-func (app *application) Matches(grammar grammars.Grammar, selector selectors.Selector) (bool, error) {
+// Matches returns true if the query matches the grammar, false otherwise
+func (app *application) Matches(grammar grammars.Grammar, query queries.Query) (bool, error) {
 	return true, nil
 }
 
-// Execute executes a selector on a data tree
-func (app *application) Execute(selector selectors.Selector, treeIns trees.Tree) (interface{}, bool, []byte, error) {
-	ins, isValid, err := app.selectorFetch(selector, treeIns, nil)
+// Execute executes a query on a data tree
+func (app *application) Execute(query queries.Query, treeIns trees.Tree) (interface{}, bool, []byte, error) {
+	ins, isValid, err := app.queryFetch(query, treeIns, nil)
 	if err != nil {
 		return nil, false, nil, err
 	}
@@ -37,25 +37,25 @@ func (app *application) Execute(selector selectors.Selector, treeIns trees.Tree)
 	return ins, isValid, remaining, nil
 }
 
-func (app *application) selectorFetch(selector selectors.Selector, tree trees.Tree, previous map[string]selectors.Selector) (interface{}, bool, error) {
-	contentsList, err := app.selectorContents(selector, tree)
+func (app *application) queryFetch(query queries.Query, tree trees.Tree, previous map[string]queries.Query) (interface{}, bool, error) {
+	contentsList, err := app.queryContents(query, tree)
 	if err != nil {
 		return nil, false, err
 	}
 
 	if previous == nil {
-		previous = map[string]selectors.Selector{}
+		previous = map[string]queries.Query{}
 	}
 
-	previous[selector.Token().Name()] = selector
-	return app.selectorInstance(selector, contentsList, previous)
+	previous[query.Token().Name()] = query
+	return app.queryInstance(query, contentsList, previous)
 }
 
-func (app *application) selectorContents(selector selectors.Selector, tree trees.Tree) ([]trees.Content, error) {
-	selectorToken := selector.Token()
+func (app *application) queryContents(query queries.Query, tree trees.Tree) ([]trees.Content, error) {
+	queryToken := query.Token()
 	treeName := tree.Grammar().Name()
-	if selectorToken.Name() != treeName {
-		str := fmt.Sprintf("the contents cannot be retrieved because the tree (token: %s) do not match the selector (token: %s)", treeName, selectorToken.Name())
+	if queryToken.Name() != treeName {
+		str := fmt.Sprintf("the contents cannot be retrieved because the tree (token: %s) do not match the query (token: %s)", treeName, queryToken.Name())
 		return nil, errors.New(str)
 	}
 
@@ -66,28 +66,28 @@ func (app *application) selectorContents(selector selectors.Selector, tree trees
 	}
 
 	cpt := uint(0)
-	selectorElement := selectorToken.Element()
+	queryElement := queryToken.Element()
 	elements := tree.Block().Successful().Elements().List()
 	for _, oneElement := range elements {
 		contents := oneElement.Contents()
 		if !oneElement.HasGrammar() {
-			if selectorElement.Name() != selectorToken.ReverseName() {
+			if queryElement.Name() != queryToken.ReverseName() {
 				continue
 			}
 
-			if selectorElement.Index() == cpt {
-				return app.tokenRefine(selectorToken, contents)
+			if queryElement.Index() == cpt {
+				return app.tokenRefine(queryToken, contents)
 			}
 
 			cpt++
 		}
 
-		if oneElement.Grammar().Name() != selectorElement.Name() {
+		if oneElement.Grammar().Name() != queryElement.Name() {
 			continue
 		}
 
-		if selectorElement.Index() == cpt {
-			return app.tokenRefine(selectorToken, contents)
+		if queryElement.Index() == cpt {
+			return app.tokenRefine(queryToken, contents)
 		}
 
 		cpt++
@@ -96,9 +96,9 @@ func (app *application) selectorContents(selector selectors.Selector, tree trees
 	return []trees.Content{}, nil
 }
 
-func (app *application) selectorInstance(selector selectors.Selector, contentList []trees.Content, previous map[string]selectors.Selector) (interface{}, bool, error) {
-	fn := selector.Fn()
-	inside := selector.Inside()
+func (app *application) queryInstance(query queries.Query, contentList []trees.Content, previous map[string]queries.Query) (interface{}, bool, error) {
+	fn := query.Fn()
+	inside := query.Inside()
 	insList, err := app.insideInstances(inside, contentList, previous)
 	if err != nil {
 		return nil, false, err
@@ -122,7 +122,7 @@ func (app *application) selectorInstance(selector selectors.Selector, contentLis
 	return multiFn(insList)
 }
 
-func (app *application) tokenRefine(token selectors.Token, contents trees.Contents) ([]trees.Content, error) {
+func (app *application) tokenRefine(token queries.Token, contents trees.Contents) ([]trees.Content, error) {
 	if !token.HasContent() {
 		return contents.List(), nil
 	}
@@ -131,7 +131,7 @@ func (app *application) tokenRefine(token selectors.Token, contents trees.Conten
 	list := contents.List()
 	listLength := uint(len(list))
 	if listLength <= *pIndex {
-		str := fmt.Sprintf("the contents cannot be refined because the token selector requires a content (index: %d) but the list (length: %d) is too small", *pIndex, listLength)
+		str := fmt.Sprintf("the contents cannot be refined because the token query requires a content (index: %d) but the list (length: %d) is too small", *pIndex, listLength)
 		return nil, errors.New(str)
 	}
 
@@ -140,7 +140,7 @@ func (app *application) tokenRefine(token selectors.Token, contents trees.Conten
 	}, nil
 }
 
-func (app *application) insideInstances(inside selectors.Inside, contentList []trees.Content, previous map[string]selectors.Selector) ([]interface{}, error) {
+func (app *application) insideInstances(inside queries.Inside, contentList []trees.Content, previous map[string]queries.Query) ([]interface{}, error) {
 	if inside.IsFn() {
 		fn := inside.Fn()
 		if fn.IsSingle() {
@@ -168,9 +168,9 @@ func (app *application) insideInstances(inside selectors.Inside, contentList []t
 			}
 
 			tree := oneContent.Tree()
-			if oneFetcher.IsSelector() {
-				selector := oneFetcher.Selector()
-				ins, isValid, err := app.selectorFetch(selector, tree, previous)
+			if oneFetcher.IsQuery() {
+				query := oneFetcher.Query()
+				ins, isValid, err := app.queryFetch(query, tree, previous)
 				if err != nil {
 					return nil, err
 				}
@@ -184,8 +184,8 @@ func (app *application) insideInstances(inside selectors.Inside, contentList []t
 			}
 
 			recursive := oneFetcher.Recursive()
-			if selector, ok := previous[recursive]; ok {
-				ins, isValid, err := app.selectorFetch(selector, tree, previous)
+			if query, ok := previous[recursive]; ok {
+				ins, isValid, err := app.queryFetch(query, tree, previous)
 				if err != nil {
 					return nil, err
 				}
@@ -198,7 +198,7 @@ func (app *application) insideInstances(inside selectors.Inside, contentList []t
 				continue
 			}
 
-			str := fmt.Sprintf("the recursive Selector's Token (name: %s) could not be found in the previous iterations", recursive)
+			str := fmt.Sprintf("the recursive Query's Token (name: %s) could not be found in the previous iterations", recursive)
 			return nil, errors.New(str)
 
 		}

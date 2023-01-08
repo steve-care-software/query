@@ -1,8 +1,8 @@
-package selectors
+package queries
 
 type fetcher struct {
 	recursive string
-	selector  Selector
+	query  Query
 }
 
 func createFetcherWithRecursive(
@@ -11,19 +11,19 @@ func createFetcherWithRecursive(
 	return createFetcherInternally(recursive, nil)
 }
 
-func createFetcherWithSelector(
-	selector Selector,
+func createFetcherWithQuery(
+	query Query,
 ) Fetcher {
-	return createFetcherInternally("", selector)
+	return createFetcherInternally("", query)
 }
 
 func createFetcherInternally(
 	recursive string,
-	selector Selector,
+	query Query,
 ) Fetcher {
 	out := fetcher{
 		recursive: recursive,
-		selector:  selector,
+		query:  query,
 	}
 
 	return &out
@@ -34,17 +34,17 @@ func (obj *fetcher) IsRecursive() bool {
 	return obj.recursive != ""
 }
 
-// Recursive returns the recursive selector's token name
+// Recursive returns the recursive query's token name
 func (obj *fetcher) Recursive() string {
 	return obj.recursive
 }
 
-// IsSelector returns true if selector, false otherwise
-func (obj *fetcher) IsSelector() bool {
-	return obj.selector != nil
+// IsQuery returns true if query, false otherwise
+func (obj *fetcher) IsQuery() bool {
+	return obj.query != nil
 }
 
-// Selector returns the selector if any
-func (obj *fetcher) Selector() Selector {
-	return obj.selector
+// Query returns the query if any
+func (obj *fetcher) Query() Query {
+	return obj.query
 }

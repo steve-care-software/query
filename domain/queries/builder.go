@@ -1,4 +1,4 @@
-package selectors
+package queries
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 type builder struct {
 	token  Token
 	inside Inside
-	fn     SelectorFn
+	fn     QueryFn
 }
 
 func createBuilder() Builder {
@@ -38,24 +38,24 @@ func (app *builder) WithInside(inside Inside) Builder {
 }
 
 // WithFn adds a func to the builder
-func (app *builder) WithFn(fn SelectorFn) Builder {
+func (app *builder) WithFn(fn QueryFn) Builder {
 	app.fn = fn
 	return app
 }
 
-// Now builds a new Selector instance
-func (app *builder) Now() (Selector, error) {
+// Now builds a new Query instance
+func (app *builder) Now() (Query, error) {
 	if app.token == nil {
-		return nil, errors.New("the token is mandatory in order to build a Selector instance")
+		return nil, errors.New("the token is mandatory in order to build a Query instance")
 	}
 
 	if app.inside == nil {
-		return nil, errors.New("the inside is mandatory in order to build a Selector instance")
+		return nil, errors.New("the inside is mandatory in order to build a Query instance")
 	}
 
 	if app.fn == nil {
-		return nil, errors.New("the func is mandatory in order to build a Selector instance")
+		return nil, errors.New("the func is mandatory in order to build a Query instance")
 	}
 
-	return createSelector(app.token, app.inside, app.fn), nil
+	return createQuery(app.token, app.inside, app.fn), nil
 }

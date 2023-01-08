@@ -1,17 +1,17 @@
-package selectors
+package queries
 
-type selector struct {
+type query struct {
 	token  Token
 	inside Inside
-	fn     SelectorFn
+	fn     QueryFn
 }
 
-func createSelector(
+func createQuery(
 	token Token,
 	inside Inside,
-	fn SelectorFn,
-) Selector {
-	out := selector{
+	fn QueryFn,
+) Query {
+	out := query{
 		token:  token,
 		inside: inside,
 		fn:     fn,
@@ -21,16 +21,16 @@ func createSelector(
 }
 
 // Token returns the token
-func (obj *selector) Token() Token {
+func (obj *query) Token() Token {
 	return obj.token
 }
 
 // Inside returns the inside
-func (obj *selector) Inside() Inside {
+func (obj *query) Inside() Inside {
 	return obj.inside
 }
 
 // Fn returns the func
-func (obj *selector) Fn() SelectorFn {
+func (obj *query) Fn() QueryFn {
 	return obj.fn
 }

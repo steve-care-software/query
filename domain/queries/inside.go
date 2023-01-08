@@ -1,4 +1,4 @@
-package selectors
+package queries
 
 type inside struct {
 	fn       ContentFn
